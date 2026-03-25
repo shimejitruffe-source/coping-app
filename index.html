@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" charset="UTF-8" content="width=device-width, initial-scale=1">
+<style>
+body{
+font-family:sans-serif;
+text-align:center;
+margin-top:60px;
+}
+button{
+font-size:18px;
+padding:10px 20px;
+margin:10px;
+}
+select{
+font-size:18px;
+padding:10px;
+}
+#result{
+font-size:28px;
+margin:40px;
+}
+</style>
+</head>
+
+<body>
+<h2>コーピングを引く</h2>
+<select id="place">
+  <option value="all">場所を選択</option>
+  <option value="家">家</option>
+  <option value="外">外</option>
+  <option value="どこでも">どこでも</option>
+</select>
+<br>
+<button onclick="random()">ランダム表示</button>
+<div id="result"></div>
+<button onclick="openNotion()">Notionで開く</button>
+<script>
+    let notionUrl = null;
+    let copingList=[]
+    fetch("coping.csv").then(res=>res.text()).then(data=>{
+        const rows=data.split("\n").slice(1)
+        copingList=rows.map(r=>{
+            const cols=r.split(",")
+            // url=cols[8]
+            return {
+                name:cols[0],
+                place:cols[1],
+                url:cols[8]
+            }
+        })
+    })
+
+    function random(){
+        const place=document.getElementById("place").value
+        let filtered=copingList
+        if(place!="all"){
+            filtered=copingList.filter(c=>c.place==place || c.place=="どこでも")
+        }
+        if(filtered.length==0){
+            document.getElementById("result").innerText="該当なし"
+            return
+        }
+        
+        const r=Math.floor(Math.random()*filtered.length)
+        document.getElementById("result").innerText=filtered[r].name
+        notionUrl = filtered[r].url
+    }
+
+    function openNotion() {
+        if (!notionUrl) {
+            alert("URLが設定されていません");
+            return;
+        }
+        window.open(notionUrl, "_blank");
+    }
+</script>
+</body>
+</html>
